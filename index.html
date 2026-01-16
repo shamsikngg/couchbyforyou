@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Alter Ego Terminal</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --bg-color: #0f0f13;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --primary: #00f0ff;
+            --secondary: #7000ff;
+            --text: #ffffff;
+            --text-dim: #888888;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text);
+            font-family: 'Inter', -apple-system, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Ambient Glow */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(112,0,255,0.1) 0%, rgba(0,0,0,0) 70%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h1 {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
+        }
+
+        .step {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        .step.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: var(--text-dim);
+            font-weight: 600;
+        }
+
+        textarea {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: white;
+            padding: 15px;
+            font-family: inherit;
+            font-size: 16px;
+            resize: none;
+            height: 100px;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            border-color: var(--primary);
+        }
+
+        .btn {
+            background: linear-gradient(90deg, var(--secondary), var(--primary));
+            border: none;
+            border-radius: 12px;
+            color: white;
+            padding: 16px 32px;
+            font-size: 16px;
+            font-weight: 700;
+            width: 100%;
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 20px;
+            box-shadow: 0 0 20px rgba(112, 0, 255, 0.3);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            width: 100%;
+            height: 4px;
+            background: rgba(255,255,255,0.1);
+            margin-bottom: 30px;
+            border-radius: 2px;
+        }
+        .progress-bar {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 10px var(--primary);
+        }
+
+        .intro-text {
+            text-align: center;
+            font-size: 16px;
+            line-height: 1.5;
+            color: #ddd;
+            margin-bottom: 30px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>ALTER EGO</h1>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <form id="mainForm">
+            <!-- Step 1: Current -->
+            <div class="step active" id="step1">
+                <div class="card">
+                    <p class="intro-text">Я проведу диагностику твоей личности. Отвечай честно.</p>
+                    <label>ШАГ 1. Опиши свою ситуацию сейчас. Что тебя бесит в себе?</label>
+                    <textarea id="inputCurrent" placeholder="Я ленивый, нет денег, боюсь начать..."></textarea>
+                </div>
+                <button type="button" class="btn" onclick="nextStep(2)">Далее</button>
+            </div>
+
+            <!-- Step 2: Fear -->
+            <div class="step" id="step2">
+                <div class="card">
+                    <label>ШАГ 2. Чего ты боишься больше всего?</label>
+                    <textarea id="inputFear" placeholder="Боюсь облажаться, боюсь остаться никем..."></textarea>
+                </div>
+                <button type="button" class="btn" onclick="nextStep(3)">Далее</button>
+            </div>
+
+            <!-- Step 3: Dream -->
+            <div class="step" id="step3">
+                <div class="card">
+                    <label>ШАГ 3. Твоя идеальная версия через 3 года. Какая она?</label>
+                    <textarea id="inputDream" placeholder="Богатый, свободный, живу в Сити..."></textarea>
+                </div>
+                <button type="button" class="btn" onclick="submitData()">ЗАПУСТИТЬ АНАЛИЗ</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand(); // Na ves ekran
+
+        let formData = {
+            current: "",
+            fear: "",
+            dream: ""
+        };
+
+        function nextStep(step) {
+            // Save data
+            if(step === 2) formData.current = document.getElementById('inputCurrent').value;
+            if(step === 3) formData.fear = document.getElementById('inputFear').value;
+
+            // Simple validation
+            if(step === 2 && !formData.current) { tg.HapticFeedback.notificationOccurred('error'); return; }
+            if(step === 3 && !formData.fear) { tg.HapticFeedback.notificationOccurred('error'); return; }
+
+            // UI Switch
+            document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+            document.getElementById('step' + step).classList.add('active');
+            
+            // Progress
+            let progress = (step-1) * 33;
+            if(step === 3) progress = 66;
+            document.getElementById('progressBar').style.width = progress + "%";
+            
+            tg.HapticFeedback.impactOccurred('light');
+        }
+
+        function submitData() {
+            formData.dream = document.getElementById('inputDream').value;
+            if(!formData.dream) { tg.HapticFeedback.notificationOccurred('error'); return; }
+
+            document.getElementById('progressBar').style.width = "100%";
+            tg.HapticFeedback.notificationOccurred('success');
+            
+            // Send to Bot
+            tg.sendData(JSON.stringify(formData));
+        }
+    </script>
+</body>
+</html>
