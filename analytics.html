@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALTER EGO | ANALYTICS</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;600;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #000000;
+            --card: #111111;
+            --text-main: #ffffff;
+            --text-dim: #888888;
+            --accent: #00ff88;
+            /* Matrix Green / Neon */
+            --accent-glow: rgba(0, 255, 136, 0.2);
+            --danger: #ff0055;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 20px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1 {
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+            font-size: 24px;
+        }
+
+        .subtitle {
+            color: var(--text-dim);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #222;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: #0a0a0a;
+            border: 1px solid #333;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--accent);
+            text-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .stat-label {
+            font-size: 10px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            margin-top: 5px;
+        }
+
+        canvas {
+            max-width: 100%;
+        }
+
+        .btn-close {
+            background: var(--text-main);
+            color: var(--bg);
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 16px;
+            margin-top: 20px;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Neuro Stats</h1>
+    <div class="subtitle">Neural Link Established</div>
+
+    <!-- KPI BLOCKS -->
+    <div class="stat-grid">
+        <div class="stat-box">
+            <div class="stat-value">8.5</div>
+            <div class="stat-label">Энергия (Avg)</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value" style="color: var(--danger)">92%</div>
+            <div class="stat-label">Дисциплина</div>
+        </div>
+    </div>
+
+    <!-- CHART 1 -->
+    <div class="card">
+        <canvas id="energyChart"></canvas>
+    </div>
+
+    <!-- CHART 2 -->
+    <div class="card">
+        <canvas id="productivityChart"></canvas>
+    </div>
+
+    <button class="btn-close" onclick="Telegram.WebApp.close()">Закрыть Терминал</button>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.enableClosingConfirmation();
+
+        // THEME COLORS
+        Chart.defaults.color = '#555';
+        Chart.defaults.borderColor = '#222';
+
+        // 1. ENERGY CHART
+        const ctxEnergy = document.getElementById('energyChart').getContext('2d');
+        const gradientEnergy = ctxEnergy.createLinearGradient(0, 0, 0, 400);
+        gradientEnergy.addColorStop(0, 'rgba(0, 255, 136, 0.5)');
+        gradientEnergy.addColorStop(1, 'rgba(0, 255, 136, 0)');
+
+        new Chart(ctxEnergy, {
+            type: 'line',
+            data: {
+                labels: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
+                datasets: [{
+                    label: 'Уровень Энергии',
+                    data: [6, 7, 8, 5, 8, 9, 8], // MOCK DATA
+                    borderColor: '#00ff88',
+                    backgroundColor: gradientEnergy,
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#000',
+                    pointBorderColor: '#00ff88',
+                    pointBorderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    title: { display: true, text: 'БИОРИТМЫ (7 ДНЕЙ)', color: '#fff', font: { size: 14, weight: '900' } }
+                },
+                scales: {
+                    y: { beginAtZero: true, max: 10, grid: { color: '#222' } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        // 2. PRODUCTIVITY CHART
+        const ctxProd = document.getElementById('productivityChart').getContext('2d');
+        new Chart(ctxProd, {
+            type: 'bar',
+            data: {
+                labels: ['Бизнес', 'Тело', 'Дух', 'Люди'],
+                datasets: [{
+                    label: 'Прогресс',
+                    data: [75, 40, 90, 60], // MOCK DATA
+                    backgroundColor: [
+                        '#00ff88',
+                        '#ff0055',
+                        '#00ccff',
+                        '#ffcc00'
+                    ],
+                    borderRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    title: { display: true, text: 'СФЕРЫ ВЛИЯНИЯ', color: '#fff', font: { size: 14, weight: '900' } }
+                },
+                scales: {
+                    y: { beginAtZero: true, max: 100, grid: { color: '#222' } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
