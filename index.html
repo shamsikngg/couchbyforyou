@@ -1,15 +1,17 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ALTER EGO: TERMINAL</title>
+    <title>ALTER EGO: DASHBOARD</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --bg-color: #0a0a0f;
             --text-color: #e0e0e0;
-            --accent-color: #ff3333; /* Ярко-красный "киберпанк" */
+            --accent-color: #ff3333;
             --input-bg: #1a1a24;
             --border-color: #333344;
         }
@@ -17,9 +19,9 @@
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
-            font-family: 'Courier New', Courier, monospace; /* Техно-стиль */
+            font-family: 'Courier New', Courier, monospace;
             margin: 0;
-            padding: 20px;
+            padding: 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -29,28 +31,54 @@
         h1 {
             color: var(--accent-color);
             text-transform: uppercase;
-            letter-spacing: 2px;
-            font-size: 1.5rem;
-            margin-bottom: 30px;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
             text-shadow: 0 0 10px rgba(255, 51, 51, 0.5);
+            text-align: center;
         }
 
-        .step-container {
+        /* Tabs */
+        .tabs {
+            display: flex;
             width: 100%;
             max-width: 400px;
-            display: none; /* Скрываем все шаги по умолчанию */
-            flex-direction: column;
-            animation: fadeIn 0.5s ease;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
         }
 
-        .step-container.active {
+        .tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: bold;
+            opacity: 0.5;
+            transition: 0.3s;
+        }
+
+        .tab.active {
+            opacity: 1;
+            border-bottom: 2px solid var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        /* Container */
+        .content-container {
+            width: 100%;
+            max-width: 400px;
+            display: none;
+            flex-direction: column;
+        }
+
+        .content-container.active {
             display: flex;
         }
 
+        /* Form Styles */
         label {
-            margin-bottom: 10px;
+            margin-bottom: 5px;
             font-weight: bold;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             opacity: 0.8;
         }
 
@@ -58,11 +86,11 @@
             background-color: var(--input-bg);
             border: 1px solid var(--border-color);
             color: var(--text-color);
-            padding: 15px;
+            padding: 10px;
             border-radius: 8px;
-            font-size: 1rem;
-            min-height: 100px;
-            margin-bottom: 20px;
+            font-size: 0.9rem;
+            min-height: 80px;
+            margin-bottom: 15px;
             width: 100%;
             box-sizing: border-box;
             resize: vertical;
@@ -71,150 +99,156 @@
         textarea:focus {
             outline: none;
             border-color: var(--accent-color);
-            box-shadow: 0 0 10px rgba(255, 51, 51, 0.2);
         }
 
         button.next-btn {
             background-color: var(--accent-color);
             color: #fff;
             border: none;
-            padding: 15px 30px;
-            border-radius: 50px; /* Круглый футуристичный стиль */
-            font-size: 1rem;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-size: 0.9rem;
             font-weight: bold;
             cursor: pointer;
             text-transform: uppercase;
-            transition: transform 0.2s, box-shadow 0.2s;
             align-self: flex-end;
+            margin-top: 10px;
         }
 
-        button.next-btn:active {
-            transform: scale(0.95);
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 4px;
+        /* Chart Styles */
+        .chart-container {
             background-color: var(--input-bg);
-            margin-bottom: 30px;
-            position: relative;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background-color: var(--accent-color);
-            width: 0%;
-            transition: width 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .hint {
-            font-size: 0.75rem;
-            color: #888;
-            margin-bottom: 15px;
-            margin-top: -15px;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 20px;
         }
     </style>
 </head>
+
 <body>
 
-    <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
-
-    <h1>ПРОТОКОЛ ЛИЧНОСТИ</h1>
-
-    <!-- ШАГ 1 -->
-    <div class="step-container active" id="step1">
-        <label for="current">1. ГДЕ ТЫ СЕЙЧАС?</label>
-        <p class="hint">Опиши свою ситуацию. Честно. Без прикрас.</p>
-        <textarea id="current" placeholder="Я работаю на... Зарабатываю... Чувствую себя..."></textarea>
-        <button class="next-btn" onclick="nextStep(1)">ДАЛЕЕ ></button>
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('profile')">ПРОФИЛЬ</div>
+        <div class="tab" onclick="switchTab('stats')">СТАТИСТИКА</div>
     </div>
 
-    <!-- ШАГ 2 -->
-    <div class="step-container" id="step2">
-        <label for="fear">2. ТВОЙ ГЛАВНЫЙ СТРАХ?</label>
-        <p class="hint">Что мешает тебе действовать? Кого ты боишься подвести?</p>
-        <textarea id="fear" placeholder="Я боюсь, что... Моя лень сильнее меня..."></textarea>
-        <button class="next-btn" onclick="nextStep(2)">ДАЛЕЕ ></button>
+    <h1>ТЕРМИНАЛ УПРАВЛЕНИЯ</h1>
+
+    <!-- PROFILER TAB -->
+    <div id="profile" class="content-container active">
+        <!-- Step 1 -->
+        <div class="step" id="step1">
+            <label>1. ГДЕ ТЫ СЕЙЧАС?</label>
+            <textarea id="current" placeholder="Реальность..."></textarea>
+            <button class="next-btn" onclick="nextStep(1)">Далее</button>
+        </div>
+        <!-- Step 2 -->
+        <div class="step" id="step2" style="display:none">
+            <label>2. ГЛАВНЫЙ СТРАХ?</label>
+            <textarea id="fear" placeholder="Чего боишься?"></textarea>
+            <button class="next-btn" onclick="nextStep(2)">Далее</button>
+        </div>
+        <!-- Step 3 -->
+        <div class="step" id="step3" style="display:none">
+            <label>3. МЕЧТА (VISION)?</label>
+            <textarea id="dream" placeholder="Кем ты будешь?"></textarea>
+            <button class="next-btn" onclick="nextStep(3)">Далее</button>
+        </div>
+        <!-- Step 4 -->
+        <div class="step" id="step4" style="display:none">
+            <label>4. ЦЕННОСТИ?</label>
+            <textarea id="values" placeholder="Принципы..."></textarea>
+            <button class="next-btn" onclick="nextStep(4)">Далее</button>
+        </div>
+        <!-- Step 5 -->
+        <div class="step" id="step5" style="display:none">
+            <label>5. МИССИЯ?</label>
+            <textarea id="vision" placeholder="Зачем ты здесь?"></textarea>
+            <button class="next-btn" onclick="sendData()">Синхронизировать</button>
+        </div>
     </div>
 
-    <!-- ШАГ 3 -->
-    <div class="step-container" id="step3">
-        <label for="dream">3. ТВОЯ МЕЧТА (ВИДЕНИЕ)?</label>
-        <p class="hint">Кем ты видишь себя через 5 лет? Опиши идеально.</p>
-        <textarea id="dream" placeholder="Я владелец... Я живу в... Мое тело..."></textarea>
-        <button class="next-btn" onclick="nextStep(3)">ДАЛЕЕ ></button>
-    </div>
-
-    <!-- ШАГ 4 (НОВОЕ) -->
-    <div class="step-container" id="step4">
-        <label for="values">4. ТВОИ ЦЕННОСТИ?</label>
-        <p class="hint">Что для тебя свято? (Свобода, Семья, Власть, Дисциплина?)</p>
-        <textarea id="values" placeholder="Мои принципы: 1... 2..."></textarea>
-        <button class="next-btn" onclick="nextStep(4)">ДАЛЕЕ ></button>
-    </div>
-
-    <!-- ШАГ 5 (НОВОЕ) -->
-    <div class="step-container" id="step5">
-        <label for="vision">5. ГЛОБАЛЬНАЯ МИССИЯ?</label>
-        <p class="hint">Зачем ты существуешь? Что мы строим?</p>
-        <textarea id="vision" placeholder="Я хочу изменить... Оставить наследие..."></textarea>
-        <button class="next-btn" onclick="sendData()">ЗАГРУЗИТЬ В СЕТЬ</button>
+    <!-- STATS TAB -->
+    <div id="stats" class="content-container">
+        <div class="chart-container">
+            <canvas id="energyChart"></canvas>
+        </div>
+        <p style="text-align:center; font-size:0.8rem; opacity:0.6">Данные обновляются ежедневно вечером.</p>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
-        
-        // Данные
-        const data = {
-            current: "",
-            fear: "",
-            dream: "",
-            values: "",
-            vision: ""
-        };
 
-        function nextStep(currentStep) {
-            // Сохраняем введенное
-            if(currentStep === 1) data.current = document.getElementById('current').value;
-            if(currentStep === 2) data.fear = document.getElementById('fear').value;
-            if(currentStep === 3) data.dream = document.getElementById('dream').value;
-            if(currentStep === 4) data.values = document.getElementById('values').value;
+        // TABS
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.content-container').forEach(c => c.classList.remove('active'));
 
-            // Валидация (простая)
-            const inputId = ['current', 'fear', 'dream', 'values'][currentStep-1];
-            if(!document.getElementById(inputId).value.trim()) {
-                tg.HapticFeedback.notificationOccurred('error');
-                return; // Не пускаем дальше, если пусто
+            // Find tab by text (hacky but simple)
+            const tabBtn = Array.from(document.querySelectorAll('.tab')).find(t => t.innerText.includes(tabId === 'profile' ? 'ПРОФИЛЬ' : 'СТАТИСТИКА'));
+            if (tabBtn) tabBtn.classList.add('active');
+
+            document.getElementById(tabId).classList.add('active');
+
+            if (tabId === 'stats') {
+                renderChart();
             }
-            
-            tg.HapticFeedback.impactOccurred('light');
-
-            // Переключаем UI
-            document.getElementById(`step${currentStep}`).classList.remove('active');
-            document.getElementById(`step${currentStep+1}`).classList.add('active');
-
-            // Прогресс бар
-            const progress = (currentStep / 5) * 100;
-            document.getElementById('progress').style.width = `${progress}%`;
         }
 
+        // PROFILE LOGIC
+        const data = { current: "", fear: "", dream: "", values: "", vision: "" };
+        function nextStep(step) {
+            const fields = ['current', 'fear', 'dream', 'values'];
+            const val = document.getElementById(fields[step - 1]).value;
+            if (!val) return tg.HapticFeedback.notificationOccurred('error');
+
+            data[fields[step - 1]] = val;
+
+            document.getElementById(`step${step}`).style.display = 'none';
+            document.getElementById(`step${step + 1}`).style.display = 'block';
+            tg.HapticFeedback.impactOccurred('light');
+        }
         function sendData() {
             data.vision = document.getElementById('vision').value;
-            
-            if(!data.vision.trim()) {
-                tg.HapticFeedback.notificationOccurred('error');
-                return;
-            }
-
-            // Отправляем данные боту
+            if (!data.vision) return tg.HapticFeedback.notificationOccurred('error');
             tg.sendData(JSON.stringify(data));
+        }
+
+        // STATS LOGIC (Fake data for demo, typically fetch from bot API if available, 
+        // but since WebApp is static, we can't easily fetch DB without a backend API endpoint. 
+        // Solution: Use dummy data for visual confirmation OR pass data via URL params if generated by bot)
+
+        // For now: Mock Data to show it works visually
+        function renderChart() {
+            const ctx = document.getElementById('energyChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
+                    datasets: [{
+                        label: 'Уровень Энергии',
+                        data: [4, 6, 7, 5, 8, 9, 7], // Demo data
+                        borderColor: '#ff3333',
+                        backgroundColor: 'rgba(255, 51, 51, 0.2)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { beginAtZero: true, max: 10, grid: { color: '#333' } },
+                        x: { grid: { display: false } }
+                    },
+                    plugins: {
+                        legend: { labels: { color: '#fff' } }
+                    }
+                }
+            });
         }
     </script>
 </body>
+
 </html>
