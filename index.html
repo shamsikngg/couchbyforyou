@@ -2,239 +2,218 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Alter Ego Terminal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALTER EGO: TERMINAL</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            --bg-color: #0f0f13;
-            --card-bg: rgba(255, 255, 255, 0.05);
-            --primary: #00f0ff;
-            --secondary: #7000ff;
-            --text: #ffffff;
-            --text-dim: #888888;
+            --bg-color: #0a0a0f;
+            --text-color: #e0e0e0;
+            --accent-color: #ff3333; /* Ярко-красный "киберпанк" */
+            --input-bg: #1a1a24;
+            --border-color: #333344;
         }
 
         body {
             background-color: var(--bg-color);
-            color: var(--text);
-            font-family: 'Inter', -apple-system, sans-serif;
+            color: var(--text-color);
+            font-family: 'Courier New', Courier, monospace; /* Техно-стиль */
             margin: 0;
             padding: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        /* Ambient Glow */
-        body::before {
-            content: '';
-            position: fixed;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(112,0,255,0.1) 0%, rgba(0,0,0,0) 70%);
-            z-index: -1;
-            pointer-events: none;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 400px;
         }
 
         h1 {
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-size: 28px;
-            font-weight: 800;
-            margin-bottom: 20px;
-            text-align: center;
+            color: var(--accent-color);
             text-transform: uppercase;
             letter-spacing: 2px;
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px rgba(255, 51, 51, 0.5);
         }
 
-        .card {
-            background: var(--card-bg);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 25px;
-            margin-bottom: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            transition: all 0.3s ease;
-        }
-
-        .step {
-            display: none;
+        .step-container {
+            width: 100%;
+            max-width: 400px;
+            display: none; /* Скрываем все шаги по умолчанию */
+            flex-direction: column;
             animation: fadeIn 0.5s ease;
         }
-        .step.active { display: block; }
+
+        .step-container.active {
+            display: flex;
+        }
+
+        label {
+            margin-bottom: 10px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        textarea {
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 1rem;
+            min-height: 100px;
+            margin-bottom: 20px;
+            width: 100%;
+            box-sizing: border-box;
+            resize: vertical;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 10px rgba(255, 51, 51, 0.2);
+        }
+
+        button.next-btn {
+            background-color: var(--accent-color);
+            color: #fff;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px; /* Круглый футуристичный стиль */
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: transform 0.2s, box-shadow 0.2s;
+            align-self: flex-end;
+        }
+
+        button.next-btn:active {
+            transform: scale(0.95);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background-color: var(--input-bg);
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--accent-color);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
-        label {
-            display: block;
-            margin-bottom: 10px;
-            font-size: 14px;
-            color: var(--text-dim);
-            font-weight: 600;
+        
+        .hint {
+            font-size: 0.75rem;
+            color: #888;
+            margin-bottom: 15px;
+            margin-top: -15px;
         }
-
-        textarea {
-            width: 100%;
-            background: rgba(0,0,0,0.3);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 12px;
-            color: white;
-            padding: 15px;
-            font-family: inherit;
-            font-size: 16px;
-            resize: none;
-            height: 100px;
-            box-sizing: border-box;
-            outline: none;
-            transition: border-color 0.3s;
-        }
-
-        textarea:focus {
-            border-color: var(--primary);
-        }
-
-        .btn {
-            background: linear-gradient(90deg, var(--secondary), var(--primary));
-            border: none;
-            border-radius: 12px;
-            color: white;
-            padding: 16px 32px;
-            font-size: 16px;
-            font-weight: 700;
-            width: 100%;
-            cursor: pointer;
-            transition: transform 0.1s, box-shadow 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: 20px;
-            box-shadow: 0 0 20px rgba(112, 0, 255, 0.3);
-        }
-
-        .btn:active {
-            transform: scale(0.98);
-        }
-
-        /* Progress Bar */
-        .progress-container {
-            width: 100%;
-            height: 4px;
-            background: rgba(255,255,255,0.1);
-            margin-bottom: 30px;
-            border-radius: 2px;
-        }
-        .progress-bar {
-            height: 100%;
-            background: var(--primary);
-            width: 0%;
-            transition: width 0.3s ease;
-            box-shadow: 0 0 10px var(--primary);
-        }
-
-        .intro-text {
-            text-align: center;
-            font-size: 16px;
-            line-height: 1.5;
-            color: #ddd;
-            margin-bottom: 30px;
-        }
-
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>ALTER EGO</h1>
-        
-        <div class="progress-container">
-            <div class="progress-bar" id="progressBar"></div>
-        </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
 
-        <form id="mainForm">
-            <!-- Step 1: Current -->
-            <div class="step active" id="step1">
-                <div class="card">
-                    <p class="intro-text">Я проведу диагностику твоей личности. Отвечай честно.</p>
-                    <label>ШАГ 1. Опиши свою ситуацию сейчас. Что тебя бесит в себе?</label>
-                    <textarea id="inputCurrent" placeholder="Я ленивый, нет денег, боюсь начать..."></textarea>
-                </div>
-                <button type="button" class="btn" onclick="nextStep(2)">Далее</button>
-            </div>
+    <h1>ПРОТОКОЛ ЛИЧНОСТИ</h1>
 
-            <!-- Step 2: Fear -->
-            <div class="step" id="step2">
-                <div class="card">
-                    <label>ШАГ 2. Чего ты боишься больше всего?</label>
-                    <textarea id="inputFear" placeholder="Боюсь облажаться, боюсь остаться никем..."></textarea>
-                </div>
-                <button type="button" class="btn" onclick="nextStep(3)">Далее</button>
-            </div>
+    <!-- ШАГ 1 -->
+    <div class="step-container active" id="step1">
+        <label for="current">1. ГДЕ ТЫ СЕЙЧАС?</label>
+        <p class="hint">Опиши свою ситуацию. Честно. Без прикрас.</p>
+        <textarea id="current" placeholder="Я работаю на... Зарабатываю... Чувствую себя..."></textarea>
+        <button class="next-btn" onclick="nextStep(1)">ДАЛЕЕ ></button>
+    </div>
 
-            <!-- Step 3: Dream -->
-            <div class="step" id="step3">
-                <div class="card">
-                    <label>ШАГ 3. Твоя идеальная версия через 3 года. Какая она?</label>
-                    <textarea id="inputDream" placeholder="Богатый, свободный, живу в Сити..."></textarea>
-                </div>
-                <button type="button" class="btn" onclick="submitData()">ЗАПУСТИТЬ АНАЛИЗ</button>
-            </div>
-        </form>
+    <!-- ШАГ 2 -->
+    <div class="step-container" id="step2">
+        <label for="fear">2. ТВОЙ ГЛАВНЫЙ СТРАХ?</label>
+        <p class="hint">Что мешает тебе действовать? Кого ты боишься подвести?</p>
+        <textarea id="fear" placeholder="Я боюсь, что... Моя лень сильнее меня..."></textarea>
+        <button class="next-btn" onclick="nextStep(2)">ДАЛЕЕ ></button>
+    </div>
+
+    <!-- ШАГ 3 -->
+    <div class="step-container" id="step3">
+        <label for="dream">3. ТВОЯ МЕЧТА (ВИДЕНИЕ)?</label>
+        <p class="hint">Кем ты видишь себя через 5 лет? Опиши идеально.</p>
+        <textarea id="dream" placeholder="Я владелец... Я живу в... Мое тело..."></textarea>
+        <button class="next-btn" onclick="nextStep(3)">ДАЛЕЕ ></button>
+    </div>
+
+    <!-- ШАГ 4 (НОВОЕ) -->
+    <div class="step-container" id="step4">
+        <label for="values">4. ТВОИ ЦЕННОСТИ?</label>
+        <p class="hint">Что для тебя свято? (Свобода, Семья, Власть, Дисциплина?)</p>
+        <textarea id="values" placeholder="Мои принципы: 1... 2..."></textarea>
+        <button class="next-btn" onclick="nextStep(4)">ДАЛЕЕ ></button>
+    </div>
+
+    <!-- ШАГ 5 (НОВОЕ) -->
+    <div class="step-container" id="step5">
+        <label for="vision">5. ГЛОБАЛЬНАЯ МИССИЯ?</label>
+        <p class="hint">Зачем ты существуешь? Что мы строим?</p>
+        <textarea id="vision" placeholder="Я хочу изменить... Оставить наследие..."></textarea>
+        <button class="next-btn" onclick="sendData()">ЗАГРУЗИТЬ В СЕТЬ</button>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
-        tg.expand(); // Na ves ekran
-
-        let formData = {
+        tg.expand();
+        
+        // Данные
+        const data = {
             current: "",
             fear: "",
-            dream: ""
+            dream: "",
+            values: "",
+            vision: ""
         };
 
-        function nextStep(step) {
-            // Save data
-            if(step === 2) formData.current = document.getElementById('inputCurrent').value;
-            if(step === 3) formData.fear = document.getElementById('inputFear').value;
+        function nextStep(currentStep) {
+            // Сохраняем введенное
+            if(currentStep === 1) data.current = document.getElementById('current').value;
+            if(currentStep === 2) data.fear = document.getElementById('fear').value;
+            if(currentStep === 3) data.dream = document.getElementById('dream').value;
+            if(currentStep === 4) data.values = document.getElementById('values').value;
 
-            // Simple validation
-            if(step === 2 && !formData.current) { tg.HapticFeedback.notificationOccurred('error'); return; }
-            if(step === 3 && !formData.fear) { tg.HapticFeedback.notificationOccurred('error'); return; }
-
-            // UI Switch
-            document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
-            document.getElementById('step' + step).classList.add('active');
-            
-            // Progress
-            let progress = (step-1) * 33;
-            if(step === 3) progress = 66;
-            document.getElementById('progressBar').style.width = progress + "%";
+            // Валидация (простая)
+            const inputId = ['current', 'fear', 'dream', 'values'][currentStep-1];
+            if(!document.getElementById(inputId).value.trim()) {
+                tg.HapticFeedback.notificationOccurred('error');
+                return; // Не пускаем дальше, если пусто
+            }
             
             tg.HapticFeedback.impactOccurred('light');
+
+            // Переключаем UI
+            document.getElementById(`step${currentStep}`).classList.remove('active');
+            document.getElementById(`step${currentStep+1}`).classList.add('active');
+
+            // Прогресс бар
+            const progress = (currentStep / 5) * 100;
+            document.getElementById('progress').style.width = `${progress}%`;
         }
 
-        function submitData() {
-            formData.dream = document.getElementById('inputDream').value;
-            if(!formData.dream) { tg.HapticFeedback.notificationOccurred('error'); return; }
-
-            document.getElementById('progressBar').style.width = "100%";
-            tg.HapticFeedback.notificationOccurred('success');
+        function sendData() {
+            data.vision = document.getElementById('vision').value;
             
-            // Send to Bot
-            tg.sendData(JSON.stringify(formData));
+            if(!data.vision.trim()) {
+                tg.HapticFeedback.notificationOccurred('error');
+                return;
+            }
+
+            // Отправляем данные боту
+            tg.sendData(JSON.stringify(data));
         }
     </script>
 </body>
