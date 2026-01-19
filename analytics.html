@@ -147,13 +147,27 @@
         gradientEnergy.addColorStop(0, 'rgba(0, 255, 136, 0.5)');
         gradientEnergy.addColorStop(1, 'rgba(0, 255, 136, 0)');
 
+        // PARSE URL PARAMS
+        const urlParams = new URLSearchParams(window.location.search);
+
+        // Energy Data (expecting 'energy=5,6,7,8...')
+        const energyRaw = urlParams.get('energy');
+        const energyData = energyRaw ? energyRaw.split(',').map(Number) : [5, 5, 5, 5, 5, 5, 5]; // Default fallback
+
+        // Productivity Data (expecting 'prod=50,60,70...') - Optional, keeping mock for now if not passed
+        // For simplicity, we'll focus on Energy first.
+
+        // Average Calculation
+        const avgEnergy = (energyData.reduce((a, b) => a + b, 0) / energyData.length).toFixed(1);
+        document.querySelector('.stat-value').innerText = avgEnergy;
+
         new Chart(ctxEnergy, {
             type: 'line',
             data: {
-                labels: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
+                labels: ['1', '2', '3', '4', '5', '6', '7'], // Simple labeling for last 7 entries
                 datasets: [{
                     label: 'Уровень Энергии',
-                    data: [6, 7, 8, 5, 8, 9, 8], // MOCK DATA
+                    data: energyData,
                     borderColor: '#00ff88',
                     backgroundColor: gradientEnergy,
                     borderWidth: 3,
@@ -168,7 +182,7 @@
                 responsive: true,
                 plugins: {
                     legend: { display: false },
-                    title: { display: true, text: 'БИОРИТМЫ (7 ДНЕЙ)', color: '#fff', font: { size: 14, weight: '900' } }
+                    title: { display: true, text: 'ДИНАМИКА ЭНЕРГИИ', color: '#fff', font: { size: 14, weight: '900' } }
                 },
                 scales: {
                     y: { beginAtZero: true, max: 10, grid: { color: '#222' } },
