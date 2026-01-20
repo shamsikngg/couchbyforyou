@@ -193,8 +193,18 @@
         // PROFILE LOGIC
         const data = { pain: "", fear: "", goal: "", price: "" };
 
+        // v2.1 MARKER & DEBUG
+        // If user sees this alert, the new code is loaded.
+        // window.alert("DEBUG: v2.1 LOADED"); 
+
         // INIT: Load saved data from CloudStorage
         window.onload = function () {
+            // Add visual marker dynamically to avoid body structure issues
+            const ver = document.createElement('div');
+            ver.innerText = "v2.1 (CLOUD)";
+            ver.style.cssText = "position:fixed; bottom:5px; right:5px; opacity:0.3; font-size:10px; color:#fff; pointer-events:none;";
+            document.body.appendChild(ver);
+
             tg.CloudStorage.getKeys(function (err, keys) {
                 if (!err && keys.length > 0) {
                     tg.CloudStorage.getItems(keys, function (err, items) {
