@@ -134,8 +134,23 @@
 
     <h1>ТЕРМИНАЛ УПРАВЛЕНИЯ</h1>
 
+    <!-- DOSSIER VIEW (Ready State) -->
+    <div id="dossier-view" class="content-container">
+        <div class="step">
+            <label style="color:var(--accent-color); font-size:1rem;">ТВОЕ ДОСЬЕ:</label>
+            <div
+                style="background:var(--input-bg); padding:15px; border-radius:8px; margin-bottom:15px; border:1px solid var(--border-color);">
+                <p><strong>ЦЕЛЬ:</strong> <span id="view-goal">...</span></p>
+                <p><strong>СТРАХ:</strong> <span id="view-fear">...</span></p>
+                <p><strong>ЦЕНА:</strong> <span id="view-price">...</span></p>
+            </div>
+            <button class="next-btn" style="width:100%; background:#333;" onclick="editProfile()">РЕДАКТИРОВАТЬ</button>
+            <button class="next-btn" style="width:100%; margin-top:10px;" onclick="tg.close()">ЗАКРЫТЬ ТЕРМИНАЛ</button>
+        </div>
+    </div>
+
     <!-- PROFILER TAB -->
-    <div id="profile" class="content-container active">
+    <div id="profile" class="content-container">
         <!-- Step 1: PAIN -->
         <div class="step" id="step1">
             <label>1. В ЧЕМ ТВОЙ ЗАТЫК?</label>
@@ -193,31 +208,62 @@
         // PROFILE LOGIC
         const data = { pain: "", fear: "", goal: "", price: "" };
 
-        // v2.1 MARKER & DEBUG
-        // If user sees this alert, the new code is loaded.
-        // window.alert("DEBUG: v2.1 LOADED"); 
+        // v2.2 UX UPDATE
+        // window.alert("DEBUG: v2.2 UX LOADED"); 
 
         // INIT: Load saved data from CloudStorage
         window.onload = function () {
-            // Add visual marker dynamically to avoid body structure issues
+            // Marker
             const ver = document.createElement('div');
-            ver.innerText = "v2.1 (CLOUD)";
+            ver.innerText = "v2.2 (UX)";
             ver.style.cssText = "position:fixed; bottom:5px; right:5px; opacity:0.3; font-size:10px; color:#fff; pointer-events:none;";
             document.body.appendChild(ver);
 
             tg.CloudStorage.getKeys(function (err, keys) {
                 if (!err && keys.length > 0) {
                     tg.CloudStorage.getItems(keys, function (err, items) {
-                        if (!err) {
+                        if (!err && items) {
+                            // Pre-fill inputs
                             if (items['pain']) document.getElementById('pain').value = items['pain'];
                             if (items['fear']) document.getElementById('fear').value = items['fear'];
                             if (items['goal']) document.getElementById('goal').value = items['goal'];
                             if (items['price']) document.getElementById('price').value = items['price'];
+
+                            // LOGIC: If all data exists -> Show View Mode
+                            if (items['goal'] && items['fear'] && items['price']) {
+                                showDossierView(items);
+                            } else {
+                                // Missing data -> Show Form
+                                document.getElementById('profile').classList.add('active');
+                            }
                         }
                     });
+                } else {
+                    document.getElementById('profile').classList.add('active');
                 }
             });
         };
+
+        function showDossierView(items) {
+            document.getElementById('view-goal').innerText = items['goal'];
+            document.getElementById('view-fear').innerText = items['fear'];
+            document.getElementById('view-price').innerText = items['price'];
+
+            // Hide Profile Form
+            document.getElementById('profile').classList.remove('active');
+            // Show View
+            document.getElementById('dossier-view').classList.add('active');
+        }
+
+        function editProfile() {
+            document.getElementById('dossier-view').classList.remove('active');
+            document.getElementById('profile').classList.add('active');
+            // Reset to step 1
+            document.getElementById('step1').style.display = 'block';
+            document.getElementById('step2').style.display = 'none';
+            document.getElementById('step3').style.display = 'none';
+            document.getElementById('step4').style.display = 'none';
+        }
 
         function nextStep(step) {
             const fields = ['pain', 'fear', 'goal'];
