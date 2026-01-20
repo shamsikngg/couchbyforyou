@@ -192,6 +192,23 @@
 
         // PROFILE LOGIC
         const data = { pain: "", fear: "", goal: "", price: "" };
+
+        // INIT: Load saved data from CloudStorage
+        window.onload = function () {
+            tg.CloudStorage.getKeys(function (err, keys) {
+                if (!err && keys.length > 0) {
+                    tg.CloudStorage.getItems(keys, function (err, items) {
+                        if (!err) {
+                            if (items['pain']) document.getElementById('pain').value = items['pain'];
+                            if (items['fear']) document.getElementById('fear').value = items['fear'];
+                            if (items['goal']) document.getElementById('goal').value = items['goal'];
+                            if (items['price']) document.getElementById('price').value = items['price'];
+                        }
+                    });
+                }
+            });
+        };
+
         function nextStep(step) {
             const fields = ['pain', 'fear', 'goal'];
             const val = document.getElementById(fields[step - 1]).value;
@@ -199,14 +216,24 @@
 
             data[fields[step - 1]] = val;
 
+            // Save progress
+            tg.CloudStorage.setItem(fields[step - 1], val, function (err, saved) {
+                if (err) console.error("Cloud Error:", err);
+            });
+
             document.getElementById(`step${step}`).style.display = 'none';
             document.getElementById(`step${step + 1}`).style.display = 'block';
             tg.HapticFeedback.impactOccurred('light');
         }
+
         function sendData() {
             data.price = document.getElementById('price').value;
             if (!data.price) return tg.HapticFeedback.notificationOccurred('error');
-            tg.sendData(JSON.stringify(data));
+
+            // Save final field
+            tg.CloudStorage.setItem('price', data.price, function (err, saved) {
+                tg.sendData(JSON.stringify(data));
+            });
         }
 
         // STATS LOGIC (Fake data for demo, typically fetch from bot API if available, 
