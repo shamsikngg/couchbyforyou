@@ -136,34 +136,28 @@
 
     <!-- PROFILER TAB -->
     <div id="profile" class="content-container active">
-        <!-- Step 1 -->
+        <!-- Step 1: PAIN -->
         <div class="step" id="step1">
-            <label>1. ГДЕ ТЫ СЕЙЧАС?</label>
-            <textarea id="current" placeholder="Реальность..."></textarea>
+            <label>1. В ЧЕМ ТВОЙ ЗАТЫК?</label>
+            <textarea id="pain" placeholder="Нет денег, Лень, Хаос..."></textarea>
             <button class="next-btn" onclick="nextStep(1)">Далее</button>
         </div>
-        <!-- Step 2 -->
+        <!-- Step 2: FEAR -->
         <div class="step" id="step2" style="display:none">
-            <label>2. ГЛАВНЫЙ СТРАХ?</label>
-            <textarea id="fear" placeholder="Чего боишься?"></textarea>
+            <label>2. ЧЕГО ТЫ БОИШЬСЯ?</label>
+            <textarea id="fear" placeholder="Быть никем..."></textarea>
             <button class="next-btn" onclick="nextStep(2)">Далее</button>
         </div>
-        <!-- Step 3 -->
+        <!-- Step 3: GOAL -->
         <div class="step" id="step3" style="display:none">
-            <label>3. МЕЧТА (VISION)?</label>
-            <textarea id="dream" placeholder="Кем ты будешь?"></textarea>
+            <label>3. ТВОЯ ГЛАВНАЯ ЦЕЛЬ?</label>
+            <textarea id="goal" placeholder="100к, Накачаться, Машина..."></textarea>
             <button class="next-btn" onclick="nextStep(3)">Далее</button>
         </div>
-        <!-- Step 4 -->
+        <!-- Step 4: PRICE -->
         <div class="step" id="step4" style="display:none">
-            <label>4. ЦЕННОСТИ?</label>
-            <textarea id="values" placeholder="Принципы..."></textarea>
-            <button class="next-btn" onclick="nextStep(4)">Далее</button>
-        </div>
-        <!-- Step 5 -->
-        <div class="step" id="step5" style="display:none">
-            <label>5. МИССИЯ?</label>
-            <textarea id="vision" placeholder="Зачем ты здесь?"></textarea>
+            <label>4. КАКУЮ ЦЕНУ ЗАПЛАТИШЬ?</label>
+            <textarea id="price" placeholder="Сон, Комфорт, Время..."></textarea>
             <button class="next-btn" onclick="sendData()">Синхронизировать</button>
         </div>
     </div>
@@ -197,9 +191,9 @@
         }
 
         // PROFILE LOGIC
-        const data = { current: "", fear: "", dream: "", values: "", vision: "" };
+        const data = { pain: "", fear: "", goal: "", price: "" };
         function nextStep(step) {
-            const fields = ['current', 'fear', 'dream', 'values'];
+            const fields = ['pain', 'fear', 'goal'];
             const val = document.getElementById(fields[step - 1]).value;
             if (!val) return tg.HapticFeedback.notificationOccurred('error');
 
@@ -210,8 +204,8 @@
             tg.HapticFeedback.impactOccurred('light');
         }
         function sendData() {
-            data.vision = document.getElementById('vision').value;
-            if (!data.vision) return tg.HapticFeedback.notificationOccurred('error');
+            data.price = document.getElementById('price').value;
+            if (!data.price) return tg.HapticFeedback.notificationOccurred('error');
             tg.sendData(JSON.stringify(data));
         }
 
