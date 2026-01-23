@@ -1,331 +1,496 @@
 <!DOCTYPE html>
 <html lang="ru">
-
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ALTER EGO: DASHBOARD</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>IDENTITY TERMINAL</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --bg-color: #0a0a0f;
+            --bg-color: #000000;
             --text-color: #e0e0e0;
-            --accent-color: #ff3333;
-            --input-bg: #1a1a24;
-            --border-color: #333344;
+            --accent-color: #ff003c; /* Cyberpunk Red */
+            --dim-color: #4a4a4a;
+            --grid-color: #1a1a1a;
+            --font-main: 'Courier New', Courier, monospace;
         }
 
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
-            font-family: 'Courier New', Courier, monospace;
+            font-family: var(--font-main);
             margin: 0;
-            padding: 10px;
+            padding: 0;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            /* CRT Scanline effect */
+            background-image: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%;
+        }
+
+        /* --- RETINA SCAN LOADER --- */
+        #loader {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #000;
+            z-index: 9999;
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-height: 100vh;
+            justify-content: center;
+            transition: opacity 0.5s;
+        }
+        
+        .scan-line {
+            width: 100%;
+            height: 2px;
+            background: var(--accent-color);
+            box-shadow: 0 0 10px var(--accent-color);
+            animation: scan 1.5s infinite linear;
+            position: absolute;
+            top: 0;
+        }
+
+        @keyframes scan {
+            0% { top: 0%; opacity: 0; }
+            50% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+
+        .loader-text {
+            color: var(--accent-color);
+            font-size: 14px;
+            letter-spacing: 2px;
+            margin-top: 20px;
+            text-shadow: 0 0 5px var(--accent-color);
+        }
+
+        /* --- UI ELEMENTS --- */
+        .container {
+            padding: 20px;
+            max-width: 500px;
+            margin: 0 auto;
+            width: 100%;
+            box-sizing: border-box;
+            display: none; /* Hidden until loaded */
+            animation: fadeIn 0.5s forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
         }
 
         h1 {
             color: var(--accent-color);
-            text-transform: uppercase;
-            font-size: 1.2rem;
-            margin-bottom: 20px;
-            text-shadow: 0 0 10px rgba(255, 51, 51, 0.5);
             text-align: center;
+            font-size: 24px;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            border-bottom: 1px solid var(--accent-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            position: relative;
         }
 
-        /* Tabs */
+        /* Glitch Effect */
+        .glitch {
+            position: relative;
+        }
+        .glitch::before, .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-color);
+        }
+        .glitch::before {
+            left: 2px;
+            text-shadow: -1px 0 #00ffff;
+            clip: rect(24px, 550px, 90px, 0);
+            animation: glitch-anim-2 3s infinite linear alternate-reverse;
+        }
+        .glitch::after {
+            left: -2px;
+            text-shadow: -1px 0 #ff00ff;
+            clip: rect(85px, 550px, 140px, 0);
+            animation: glitch-anim 2.5s infinite linear alternate-reverse;
+        }
+        @keyframes glitch-anim {
+            0% { clip: rect(10px, 9999px, 30px, 0); }
+            20% { clip: rect(80px, 9999px, 100px, 0); }
+            40% { clip: rect(10px, 9999px, 50px, 0); }
+            60% { clip: rect(60px, 9999px, 80px, 0); }
+            80% { clip: rect(30px, 9999px, 60px, 0); }
+            100% { clip: rect(90px, 9999px, 120px, 0); }
+        }
+        @keyframes glitch-anim-2 {
+            0% { clip: rect(50px, 9999px, 70px, 0); }
+            20% { clip: rect(10px, 9999px, 30px, 0); }
+            40% { clip: rect(90px, 9999px, 110px, 0); }
+            60% { clip: rect(20px, 9999px, 40px, 0); }
+            80% { clip: rect(70px, 9999px, 90px, 0); }
+            100% { clip: rect(10px, 9999px, 50px, 0); }
+        }
+
+        /* TABS */
         .tabs {
             display: flex;
-            width: 100%;
-            max-width: 400px;
-            margin-bottom: 20px;
-            border-bottom: 2px solid var(--border-color);
+            justify-content: center;
+            margin-bottom: 25px;
+            border: 1px solid var(--dim-color);
         }
-
         .tab {
             flex: 1;
-            padding: 10px;
+            padding: 12px;
             text-align: center;
             cursor: pointer;
-            font-weight: bold;
-            opacity: 0.5;
+            color: var(--dim-color);
             transition: 0.3s;
+            font-weight: bold;
+            font-size: 14px;
         }
-
         .tab.active {
-            opacity: 1;
-            border-bottom: 2px solid var(--accent-color);
-            color: var(--accent-color);
+            color: var(--bg-color);
+            background: var(--accent-color);
+            box-shadow: 0 0 15px var(--accent-color);
         }
 
-        /* Container */
-        .content-container {
-            width: 100%;
-            max-width: 400px;
-            display: none;
-            flex-direction: column;
-        }
-
-        .content-container.active {
-            display: flex;
-        }
-
-        /* Form Styles */
-        label {
-            margin-bottom: 5px;
-            font-weight: bold;
-            font-size: 0.8rem;
-            opacity: 0.8;
-        }
-
-        textarea {
-            background-color: var(--input-bg);
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            min-height: 80px;
-            margin-bottom: 15px;
-            width: 100%;
-            box-sizing: border-box;
-            resize: vertical;
-        }
-
-        textarea:focus {
-            outline: none;
-            border-color: var(--accent-color);
-        }
-
-        button.next-btn {
-            background-color: var(--accent-color);
-            color: #fff;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 50px;
-            font-size: 0.9rem;
-            font-weight: bold;
-            cursor: pointer;
-            text-transform: uppercase;
-            align-self: flex-end;
-            margin-top: 10px;
-        }
-
-        /* Chart Styles */
-        .chart-container {
-            background-color: var(--input-bg);
-            padding: 10px;
-            border-radius: 10px;
+        /* CARD STYLE */
+        .card {
+            border: 1px solid var(--dim-color);
+            padding: 20px;
             margin-bottom: 20px;
+            background: rgba(20, 20, 20, 0.8);
+            position: relative;
         }
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -1px; left: -1px;
+            width: 10px; height: 10px;
+            border-top: 2px solid var(--accent-color);
+            border-left: 2px solid var(--accent-color);
+        }
+        .card::after {
+            content: '';
+            position: absolute;
+            bottom: -1px; right: -1px;
+            width: 10px; height: 10px;
+            border-bottom: 2px solid var(--accent-color);
+            border-right: 2px solid var(--accent-color);
+        }
+
+        /* INPUTS */
+        textarea {
+            width: 100%;
+            background: #111;
+            border: 1px solid var(--dim-color);
+            color: var(--accent-color);
+            padding: 10px;
+            font-family: inherit;
+            margin-top: 10px;
+            resize: vertical;
+            min-height: 80px;
+            outline: none;
+            box-sizing: border-box;
+        }
+        textarea:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 5px rgba(255, 0, 60, 0.5);
+        }
+        label {
+            color: #fff;
+            font-size: 12px;
+            opacity: 0.7;
+            text-transform: uppercase;
+        }
+
+        /* BUTTONS */
+        .cyber-btn {
+            width: 100%;
+            padding: 15px;
+            background: transparent;
+            border: 1px solid var(--accent-color);
+            color: var(--accent-color);
+            font-family: inherit;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .cyber-btn:hover {
+            background: var(--accent-color);
+            color: #000;
+            box-shadow: 0 0 20px var(--accent-color);
+        }
+        .cyber-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* CHART */
+        .chart-wrapper {
+            position: relative;
+            height: 250px;
+            width: 100%;
+        }
+
     </style>
 </head>
-
 <body>
 
-    <div class="tabs">
-        <div class="tab active" onclick="switchTab('profile')">ПРОФИЛЬ</div>
-        <div class="tab" onclick="switchTab('stats')">СТАТИСТИКА</div>
+    <!-- RETINA SCAN LOADER -->
+    <div id="loader">
+        <div class="scan-line"></div>
+        <div style="font-size:40px; color:var(--accent-color);">👁</div>
+        <div class="loader-text" id="loader-msg">INITIALIZING...</div>
     </div>
 
-    <h1>ТЕРМИНАЛ УПРАВЛЕНИЯ</h1>
+    <!-- MAIN INTERFACE -->
+    <div class="container" id="app">
+        <h1 class="glitch" data-text="IDENTITY_TERMINAL">IDENTITY_TERMINAL</h1>
 
-    <!-- DOSSIER VIEW (Ready State) -->
-    <div id="dossier-view" class="content-container">
-        <div class="step">
-            <label style="color:var(--accent-color); font-size:1rem;">ТВОЕ ДОСЬЕ:</label>
-            <div
-                style="background:var(--input-bg); padding:15px; border-radius:8px; margin-bottom:15px; border:1px solid var(--border-color);">
-                <p><strong>ЦЕЛЬ:</strong> <span id="view-goal">...</span></p>
-                <p><strong>СТРАХ:</strong> <span id="view-fear">...</span></p>
-                <p><strong>ЦЕНА:</strong> <span id="view-price">...</span></p>
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('profile')">ДОСЬЕ</div>
+            <div class="tab" onclick="switchTab('stats')">ЭНЕРГИЯ</div>
+        </div>
+
+        <!-- PROFILE SECTION -->
+        <div id="profile-section">
+            
+            <!-- VIEW MODE -->
+            <div id="profile-view" style="display:none;">
+                <div class="card">
+                    <label>STATUS</label>
+                    <div style="color:#0f0; margin-bottom:10px;">● ACTIVE</div>
+                    
+                    <label>ЦЕЛЬ</label>
+                    <div id="view-goal" style="color:#fff; margin-bottom:10px; border-bottom:1px dashed #333; padding-bottom:5px;">...</div>
+                    
+                    <label>СТРАХ</label>
+                    <div id="view-fear" style="color:#fff; margin-bottom:10px; border-bottom:1px dashed #333; padding-bottom:5px;">...</div>
+                    
+                    <label>ЦЕНА</label>
+                    <div id="view-price" style="color:#fff; margin-bottom:10px;">...</div>
+                </div>
+                <button class="cyber-btn" onclick="editProfile()">// REWRITE_DATA</button>
             </div>
-            <button class="next-btn" style="width:100%; background:#333;" onclick="editProfile()">РЕДАКТИРОВАТЬ</button>
-            <button class="next-btn" style="width:100%; margin-top:10px;" onclick="tg.close()">ЗАКРЫТЬ ТЕРМИНАЛ</button>
-        </div>
-    </div>
 
-    <!-- PROFILER TAB -->
-    <div id="profile" class="content-container">
-        <!-- Step 1: PAIN -->
-        <div class="step" id="step1">
-            <label>1. В ЧЕМ ТВОЙ ЗАТЫК?</label>
-            <textarea id="pain" placeholder="Нет денег, Лень, Хаос..."></textarea>
-            <button class="next-btn" onclick="nextStep(1)">Далее</button>
-        </div>
-        <!-- Step 2: FEAR -->
-        <div class="step" id="step2" style="display:none">
-            <label>2. ЧЕГО ТЫ БОИШЬСЯ?</label>
-            <textarea id="fear" placeholder="Быть никем..."></textarea>
-            <button class="next-btn" onclick="nextStep(2)">Далее</button>
-        </div>
-        <!-- Step 3: GOAL -->
-        <div class="step" id="step3" style="display:none">
-            <label>3. ТВОЯ ГЛАВНАЯ ЦЕЛЬ?</label>
-            <textarea id="goal" placeholder="100к, Накачаться, Машина..."></textarea>
-            <button class="next-btn" onclick="nextStep(3)">Далее</button>
-        </div>
-        <!-- Step 4: PRICE -->
-        <div class="step" id="step4" style="display:none">
-            <label>4. КАКУЮ ЦЕНУ ЗАПЛАТИШЬ?</label>
-            <textarea id="price" placeholder="Сон, Комфорт, Время..."></textarea>
-            <button class="next-btn" onclick="sendData()">Синхронизировать</button>
-        </div>
-    </div>
+            <!-- EDIT MODE -->
+            <div id="profile-edit" style="display:none;">
+                <div class="card">
+                    <div class="step" id="step1">
+                        <label>1. БОЛЬ (ЧТО МЕШАЕТ?)</label>
+                        <textarea id="pain"></textarea>
+                        <button class="cyber-btn" onclick="nextStep(1)">NEXT >></button>
+                    </div>
 
-    <!-- STATS TAB -->
-    <div id="stats" class="content-container">
-        <div class="chart-container">
-            <canvas id="energyChart"></canvas>
+                    <div class="step" id="step2" style="display:none">
+                        <label>2. СТРАХ (ЧЕГО БОИШЬСЯ?)</label>
+                        <textarea id="fear"></textarea>
+                        <button class="cyber-btn" onclick="nextStep(2)">NEXT >></button>
+                    </div>
+
+                    <div class="step" id="step3" style="display:none">
+                        <label>3. ЦЕЛЬ (ЧЕГО ХОЧЕШЬ?)</label>
+                        <textarea id="goal"></textarea>
+                        <button class="cyber-btn" onclick="nextStep(3)">NEXT >></button>
+                    </div>
+
+                    <div class="step" id="step4" style="display:none">
+                        <label>4. ЦЕНА (ЧЕМ ПОЖЕРТВУЕШЬ?)</label>
+                        <textarea id="price"></textarea>
+                        <button class="cyber-btn" onclick="saveData()">// UPLOAD_TO_CORE</button>
+                    </div>
+                </div>
+            </div>
         </div>
-        <p style="text-align:center; font-size:0.8rem; opacity:0.6">Данные обновляются ежедневно вечером.</p>
+
+        <!-- STATS SECTION -->
+        <div id="stats-section" style="display:none;">
+            <div class="card">
+                <label>ЭФФЕКТИВНОСТЬ (7 ДНЕЙ)</label>
+                <div class="chart-wrapper">
+                    <canvas id="energyChart"></canvas>
+                </div>
+            </div>
+            <div style="text-align:center; font-size:10px; color:var(--dim-color); margin-top:10px;">
+                SYNCED WITH NEURAL NETWORK
+            </div>
+        </div>
+
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // TABS
-        function switchTab(tabId) {
+        // --- LOADER LOGIC ---
+        window.onload = function() {
+            const msgs = ["CONNECTING...", "RETINA SCAN...", "ACCESS GRANTED"];
+            let i = 0;
+            const interval = setInterval(() => {
+                document.getElementById('loader-msg').innerText = msgs[i];
+                i++;
+                if (i >= msgs.length) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        document.getElementById('loader').style.opacity = '0';
+                        setTimeout(() => {
+                            document.getElementById('loader').style.display = 'none';
+                            document.getElementById('app').style.display = 'block';
+                            loadData(); // Load cloud data
+                        }, 500);
+                    }, 800);
+                }
+            }, 800);
+        };
+
+        // --- TABS LOGIC ---
+        function switchTab(tab) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.content-container').forEach(c => c.classList.remove('active'));
+            event.target.classList.add('active');
 
-            // Find tab by text (hacky but simple)
-            const tabBtn = Array.from(document.querySelectorAll('.tab')).find(t => t.innerText.includes(tabId === 'profile' ? 'ПРОФИЛЬ' : 'СТАТИСТИКА'));
-            if (tabBtn) tabBtn.classList.add('active');
-
-            document.getElementById(tabId).classList.add('active');
-
-            if (tabId === 'stats') {
+            if (tab === 'profile') {
+                document.getElementById('profile-section').style.display = 'block';
+                document.getElementById('stats-section').style.display = 'none';
+            } else {
+                document.getElementById('profile-section').style.display = 'none';
+                document.getElementById('stats-section').style.display = 'block';
                 renderChart();
             }
+            tg.HapticFeedback.selectionChanged();
         }
 
-        // PROFILE LOGIC
+        // --- DATA LOGIC ---
         const data = { pain: "", fear: "", goal: "", price: "" };
 
-        // v2.2 UX UPDATE
-        // window.alert("DEBUG: v2.2 UX LOADED"); 
-
-        // INIT: Load saved data from CloudStorage
-        window.onload = function () {
-            // Marker
-            const ver = document.createElement('div');
-            ver.innerText = "v2.2 (UX)";
-            ver.style.cssText = "position:fixed; bottom:5px; right:5px; opacity:0.3; font-size:10px; color:#fff; pointer-events:none;";
-            document.body.appendChild(ver);
-
-            tg.CloudStorage.getKeys(function (err, keys) {
+        function loadData() {
+            tg.CloudStorage.getKeys((err, keys) => {
                 if (!err && keys.length > 0) {
-                    tg.CloudStorage.getItems(keys, function (err, items) {
+                    tg.CloudStorage.getItems(keys, (err, items) => {
                         if (!err && items) {
-                            // Pre-fill inputs
-                            if (items['pain']) document.getElementById('pain').value = items['pain'];
-                            if (items['fear']) document.getElementById('fear').value = items['fear'];
-                            if (items['goal']) document.getElementById('goal').value = items['goal'];
-                            if (items['price']) document.getElementById('price').value = items['price'];
+                            if (items.pain) document.getElementById('pain').value = items.pain;
+                            if (items.fear) document.getElementById('fear').value = items.fear;
+                            if (items.goal) document.getElementById('goal').value = items.goal;
+                            if (items.price) document.getElementById('price').value = items.price;
 
-                            // LOGIC: If all data exists -> Show View Mode
-                            if (items['goal'] && items['fear'] && items['price']) {
-                                showDossierView(items);
+                            if (items.goal && items.fear && items.price) {
+                                showViewMode(items);
                             } else {
-                                // Missing data -> Show Form
-                                document.getElementById('profile').classList.add('active');
+                                showEditMode();
                             }
                         }
                     });
                 } else {
-                    document.getElementById('profile').classList.add('active');
+                    showEditMode();
                 }
             });
-        };
+        }
 
-        function showDossierView(items) {
-            document.getElementById('view-goal').innerText = items['goal'];
-            document.getElementById('view-fear').innerText = items['fear'];
-            document.getElementById('view-price').innerText = items['price'];
+        function showViewMode(items) {
+            document.getElementById('view-goal').innerText = items.goal || "N/A";
+            document.getElementById('view-fear').innerText = items.fear || "N/A";
+            document.getElementById('view-price').innerText = items.price || "N/A";
+            document.getElementById('profile-view').style.display = 'block';
+            document.getElementById('profile-edit').style.display = 'none';
+        }
 
-            // Hide Profile Form
-            document.getElementById('profile').classList.remove('active');
-            // Show View
-            document.getElementById('dossier-view').classList.add('active');
+        function showEditMode() {
+            document.getElementById('profile-view').style.display = 'none';
+            document.getElementById('profile-edit').style.display = 'block';
+            document.getElementById('step1').style.display = 'block';
         }
 
         function editProfile() {
-            document.getElementById('dossier-view').classList.remove('active');
-            document.getElementById('profile').classList.add('active');
-            // Reset to step 1
-            document.getElementById('step1').style.display = 'block';
-            document.getElementById('step2').style.display = 'none';
-            document.getElementById('step3').style.display = 'none';
-            document.getElementById('step4').style.display = 'none';
+            showEditMode();
+            tg.HapticFeedback.impactOccurred('medium');
         }
 
-        function nextStep(step) {
+        function nextStep(current) {
             const fields = ['pain', 'fear', 'goal'];
-            const val = document.getElementById(fields[step - 1]).value;
-            if (!val) return tg.HapticFeedback.notificationOccurred('error');
+            const val = document.getElementById(fields[current-1]).value;
+            
+            if (!val) {
+                tg.HapticFeedback.notificationOccurred('error');
+                return;
+            }
 
-            data[fields[step - 1]] = val;
-
-            // Save progress
-            tg.CloudStorage.setItem(fields[step - 1], val, function (err, saved) {
-                if (err) console.error("Cloud Error:", err);
-            });
-
-            document.getElementById(`step${step}`).style.display = 'none';
-            document.getElementById(`step${step + 1}`).style.display = 'block';
+            // Auto-save step
+            tg.CloudStorage.setItem(fields[current-1], val);
+            
+            document.getElementById('step'+current).style.display = 'none';
+            document.getElementById('step'+(current+1)).style.display = 'block';
             tg.HapticFeedback.impactOccurred('light');
         }
 
-        function sendData() {
-            data.price = document.getElementById('price').value;
-            if (!data.price) return tg.HapticFeedback.notificationOccurred('error');
-
-            // Save final field
-            tg.CloudStorage.setItem('price', data.price, function (err, saved) {
-                tg.sendData(JSON.stringify(data));
+        function saveData() {
+            const price = document.getElementById('price').value;
+            if (!price) {
+                tg.HapticFeedback.notificationOccurred('error');
+                return;
+            }
+            tg.CloudStorage.setItem('price', price, (err, saved) => {
+                if (!err) {
+                    tg.HapticFeedback.notificationOccurred('success');
+                    // Reload data to show view
+                    loadData();
+                }
             });
         }
 
-        // STATS LOGIC (Fake data for demo, typically fetch from bot API if available, 
-        // but since WebApp is static, we can't easily fetch DB without a backend API endpoint. 
-        // Solution: Use dummy data for visual confirmation OR pass data via URL params if generated by bot)
-
-        // For now: Mock Data to show it works visually
+        // --- CHART LOGIC ---
+        let chartInstance = null;
         function renderChart() {
             const ctx = document.getElementById('energyChart').getContext('2d');
-            new Chart(ctx, {
+            if (chartInstance) chartInstance.destroy();
+
+            // Gradient
+            const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, 'rgba(255, 0, 60, 0.5)');
+            gradient.addColorStop(1, 'rgba(255, 0, 60, 0)');
+
+            chartInstance = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
+                    labels: ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС'],
                     datasets: [{
-                        label: 'Уровень Энергии',
-                        data: [4, 6, 7, 5, 8, 9, 7], // Demo data
-                        borderColor: '#ff3333',
-                        backgroundColor: 'rgba(255, 51, 51, 0.2)',
+                        label: 'ЭНЕРГИЯ',
+                        data: [7, 6, 8, 5, 9, 8, 9], // Mock Data (Replace with real later)
+                        borderColor: '#ff003c',
+                        backgroundColor: gradient,
                         borderWidth: 2,
-                        tension: 0.4,
-                        fill: true
+                        pointBackgroundColor: '#000',
+                        pointBorderColor: '#ff003c',
+                        fill: true,
+                        tension: 0.3
                     }]
                 },
                 options: {
                     responsive: true,
-                    scales: {
-                        y: { beginAtZero: true, max: 10, grid: { color: '#333' } },
-                        x: { grid: { display: false } }
-                    },
+                    maintainAspectRatio: false,
                     plugins: {
-                        legend: { labels: { color: '#fff' } }
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 10,
+                            grid: { color: '#333' },
+                            ticks: { color: '#666' }
+                        },
+                        x: {
+                            grid: { color: '#1a1a1a' },
+                            ticks: { color: '#666' }
+                        }
                     }
                 }
             });
         }
     </script>
 </body>
-
 </html>
