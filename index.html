@@ -708,9 +708,9 @@
             const energyRaw = urlParams.get('energy');
             const prodRaw = urlParams.get('prod');
 
-            let dataPoints = [4, 5, 8, 6, 9, 7, 8]; // Defaults
-            if (prodRaw) dataPoints = prodRaw.split(',').map(Number);
-            else if (energyRaw) dataPoints = energyRaw.split(',').map(Number);
+            let dataPoints = [5, 6, 7, 5, 8, 9, 7]; // Defaults
+            if (energyRaw) dataPoints = energyRaw.split(',').map(Number);
+            else if (prodRaw) dataPoints = prodRaw.split(',').map(Number);
 
             // Vitals
             const avg = dataPoints.reduce((a, b) => a + b, 0) / dataPoints.length;
