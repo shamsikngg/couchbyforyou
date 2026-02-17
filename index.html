@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>IDENTITY TERMINAL</title>
+    <title>ТЕРМИНАЛ ИДЕНТИЧНОСТИ</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -308,8 +308,56 @@
         /* CHART */
         .chart-wrapper {
             position: relative;
-            height: 250px;
+            height: 200px;
             width: 100%;
+        }
+
+        /* DASHBOARD CARDS */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: #141414;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 10px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 5px;
+        }
+
+        .chart-card {
+            background: #141414;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .chart-title {
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            color: #fff;
         }
     </style>
 </head>
@@ -320,12 +368,12 @@
     <div id="loader">
         <div class="scan-line"></div>
         <div style="font-size:40px; color:var(--accent-color);">👁</div>
-        <div class="loader-text" id="loader-msg">INITIALIZING...</div>
+        <div class="loader-text" id="loader-msg">ИНИЦИАЛИЗАЦИЯ...</div>
     </div>
 
     <!-- MAIN INTERFACE -->
     <div class="container" id="app">
-        <h1 class="glitch" data-text="IDENTITY_TERMINAL">IDENTITY_TERMINAL</h1>
+        <h1 class="glitch" data-text="ТЕРМИНАЛ_ИДЕНТИЧНОСТИ">ТЕРМИНАЛ_ИДЕНТИЧНОСТИ</h1>
 
         <div class="tabs">
             <div class="tab active" onclick="switchTab('profile')">ДОСЬЕ</div>
@@ -338,8 +386,8 @@
             <!-- VIEW MODE -->
             <div id="profile-view" style="display:none;">
                 <div class="card">
-                    <label>STATUS</label>
-                    <div style="color:#0f0; margin-bottom:10px;">● ACTIVE</div>
+                    <label>СТАТУС</label>
+                    <div style="color:#0f0; margin-bottom:10px;">● АКТИВЕН</div>
 
                     <label>ЦЕЛЬ</label>
                     <div id="view-goal"
@@ -354,7 +402,7 @@
                     <label>ЦЕНА</label>
                     <div id="view-price" style="color:#fff; margin-bottom:10px;">...</div>
                 </div>
-                <button class="cyber-btn" onclick="editProfile()">// REWRITE_DATA</button>
+                <button class="cyber-btn" onclick="editProfile()">// ПЕРЕЗАПИСЬ_ДАННЫХ</button>
             </div>
 
             <!-- EDIT MODE -->
@@ -363,25 +411,25 @@
                     <div class="step" id="step1">
                         <label>1. БОЛЬ (ЧТО МЕШАЕТ?)</label>
                         <textarea id="pain"></textarea>
-                        <button class="cyber-btn" onclick="nextStep(1)">NEXT >></button>
+                        <button class="cyber-btn" onclick="nextStep(1)">ДАЛЕЕ >></button>
                     </div>
 
                     <div class="step" id="step2" style="display:none">
                         <label>2. СТРАХ (ЧЕГО БОИШЬСЯ?)</label>
                         <textarea id="fear"></textarea>
-                        <button class="cyber-btn" onclick="nextStep(2)">NEXT >></button>
+                        <button class="cyber-btn" onclick="nextStep(2)">ДАЛЕЕ >></button>
                     </div>
 
                     <div class="step" id="step3" style="display:none">
                         <label>3. ЦЕЛЬ (ЧЕГО ХОЧЕШЬ?)</label>
                         <textarea id="goal"></textarea>
-                        <button class="cyber-btn" onclick="nextStep(3)">NEXT >></button>
+                        <button class="cyber-btn" onclick="nextStep(3)">ДАЛЕЕ >></button>
                     </div>
 
                     <div class="step" id="step4" style="display:none">
                         <label>4. ЦЕНА (ЧЕМ ПОЖЕРТВУЕШЬ?)</label>
                         <textarea id="price"></textarea>
-                        <button class="cyber-btn" onclick="saveData()">// UPLOAD_TO_CORE</button>
+                        <button class="cyber-btn" onclick="saveData()">// ЗАГРУЗКА_В_ЯДРО</button>
                     </div>
                 </div>
             </div>
@@ -389,14 +437,42 @@
 
         <!-- STATS SECTION -->
         <div id="stats-section" style="display:none;">
-            <div class="card">
-                <label>ЭФФЕКТИВНОСТЬ (7 ДНЕЙ)</label>
+
+            <!-- TOP SCORE CARDS -->
+            <div class="stat-grid">
+                <div class="stat-card">
+                    <span class="stat-value" id="energy-avg-val"
+                        style="color: #00ffff; text-shadow: 0 0 10px #00ffff66;">7.0</span>
+                    <span class="stat-label">ЭНЕРГИЯ (AVG)</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value" id="discipline-val"
+                        style="color: #ff00ff; text-shadow: 0 0 10px #ff00ff66;">92%</span>
+                    <span class="stat-label">ДИСЦИПЛИНА</span>
+                </div>
+            </div>
+
+            <!-- DYNAMICS CHART -->
+            <div class="chart-card">
+                <div class="chart-title">ДИНАМИКА ЭНЕРГИИ</div>
                 <div class="chart-wrapper">
                     <canvas id="energyChart"></canvas>
                 </div>
             </div>
-            <div style="text-align:center; font-size:10px; color:var(--dim-color); margin-top:10px;">
-                SYNCED WITH NEURAL NETWORK
+
+            <!-- INFLUENCE CHART -->
+            <div class="chart-card">
+                <div class="chart-title">СФЕРЫ ВЛИЯНИЯ</div>
+                <div class="chart-wrapper">
+                    <canvas id="influenceChart"></canvas>
+                </div>
+            </div>
+
+            <button class="cyber-btn" style="background:#fff; color:#000; border-radius:12px; border:none;"
+                onclick="tg.close()">ЗАКРЫТЬ ТЕРМИНАЛ</button>
+
+            <div style="text-align:center; font-size:10px; color:var(--dim-color); margin-top:15px; opacity:0.5;">
+                @SelfForger_bot
             </div>
         </div>
 
@@ -408,7 +484,7 @@
 
         // --- LOADER LOGIC ---
         window.onload = function () {
-            const msgs = ["CONNECTING...", "RETINA SCAN...", "ACCESS GRANTED"];
+            const msgs = ["ПОДКЛЮЧЕНИЕ...", "СКАНИРОВАНИЕ...", "ДОСТУП РАЗРЕШЕН"];
             let i = 0;
             const interval = setInterval(() => {
                 document.getElementById('loader-msg').innerText = msgs[i];
@@ -421,6 +497,14 @@
                             document.getElementById('loader').style.display = 'none';
                             document.getElementById('app').style.display = 'block';
                             loadData(); // Load cloud data
+
+                            // Check for tab parameter to auto-switch
+                            const urlParams = new URLSearchParams(window.location.search);
+                            if (urlParams.get('tab') === 'stats') {
+                                setTimeout(() => {
+                                    switchTab('stats');
+                                }, 100);
+                            }
                         }, 500);
                     }, 800);
                 }
@@ -429,18 +513,24 @@
 
         // --- TABS LOGIC ---
         function switchTab(tab) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(t => t.classList.remove('active'));
 
             if (tab === 'profile') {
+                tabs[0].classList.add('active');
                 document.getElementById('profile-section').style.display = 'block';
                 document.getElementById('stats-section').style.display = 'none';
             } else {
+                tabs[1].classList.add('active');
                 document.getElementById('profile-section').style.display = 'none';
                 document.getElementById('stats-section').style.display = 'block';
                 renderChart();
             }
-            tg.HapticFeedback.selectionChanged();
+
+            // Trigger haptic only if initiated by user click (event object exists)
+            try {
+                if (window.event) tg.HapticFeedback.selectionChanged();
+            } catch (e) { }
         }
 
         // --- DATA LOGIC ---
@@ -511,10 +601,24 @@
                 tg.HapticFeedback.notificationOccurred('error');
                 return;
             }
+
+            // Get all values
+            const items = {
+                pain: document.getElementById('pain').value,
+                fear: document.getElementById('fear').value,
+                goal: document.getElementById('goal').value,
+                price: price
+            };
+
+            // 1. Save to CloudStorage
             tg.CloudStorage.setItem('price', price, (err, saved) => {
                 if (!err) {
                     tg.HapticFeedback.notificationOccurred('success');
-                    // Reload data to show view
+
+                    // 2. Send to Bot via sendData (This closes the WebApp and triggers handle_web_app_data)
+                    tg.sendData(JSON.stringify(items));
+
+                    // Fallback reload if it doesn't close
                     loadData();
                 }
             });
@@ -522,52 +626,66 @@
 
         // --- CHART LOGIC ---
         let chartInstance = null;
+        let influenceChartInstance = null;
 
         function getStatsFromUrl() {
             try {
-                const hash = window.location.hash;
-                if (hash.includes('stats=')) {
-                    // Handle potential double encoding or simple string
-                    const param = hash.split('stats=')[1];
-                    const jsonStr = decodeURIComponent(param);
-                    const data = JSON.parse(jsonStr);
-                    if (data.labels && data.labels.length > 0) {
-                        return data;
-                    }
+                const urlParams = new URLSearchParams(window.location.search);
+                const energyRaw = urlParams.get('energy');
+                const prodRaw = urlParams.get('prod');
+
+                // Prioritize Productivity (Cyan Graph)
+                if (prodRaw) {
+                    return {
+                        labels: ['1', '2', '3', '4', '5', '6', '7'],
+                        values: prodRaw.split(',').map(Number)
+                    };
                 }
-            } catch (e) {
-                console.error("Error parsing stats:", e);
-            }
+
+                if (energyRaw) {
+                    return {
+                        labels: ['1', '2', '3', '4', '5', '6', '7'],
+                        values: energyRaw.split(',').map(Number)
+                    };
+                }
+            } catch (e) { console.error(e); }
             return null;
         }
 
         function renderChart() {
-            const ctx = document.getElementById('energyChart').getContext('2d');
-            if (chartInstance) chartInstance.destroy();
-
-            // Gradient
-            const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-            gradient.addColorStop(0, 'rgba(255, 0, 60, 0.5)');
-            gradient.addColorStop(1, 'rgba(255, 0, 60, 0)');
-
-            // Get Real Data
             const stats = getStatsFromUrl();
-            // Default to empty/zero if no stats found (New User)
-            const labels = stats ? stats.labels : ['-', '-', '-', '-', '-', '-', '-'];
             const dataPoints = stats ? stats.values : [0, 0, 0, 0, 0, 0, 0];
 
-            chartInstance = new Chart(ctx, {
+            // Update TOP CARDS
+            // 1. Energy AVG
+            const avg = dataPoints.reduce((a, b) => a + b, 0) / dataPoints.length;
+            document.getElementById('energy-avg-val').innerText = avg.toFixed(1);
+
+            // 2. Discipline % (Count of non-zero entries in last 7 days)
+            const activeDays = dataPoints.filter(v => v > 0).length;
+            const discPercent = Math.round((activeDays / 7) * 100);
+            document.getElementById('discipline-val').innerText = discPercent + '%';
+
+            // Render Dynamics (Line)
+            const ctxLine = document.getElementById('energyChart').getContext('2d');
+            if (chartInstance) chartInstance.destroy();
+
+            const gradient = ctxLine.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, 'rgba(0, 255, 255, 0.2)');
+            gradient.addColorStop(1, 'rgba(0, 255, 255, 0)');
+
+            chartInstance = new Chart(ctxLine, {
                 type: 'line',
                 data: {
-                    labels: labels,
+                    labels: ['1', '2', '3', '4', '5', '6', '7'],
                     datasets: [{
-                        label: 'ЭНЕРГИЯ',
                         data: dataPoints,
-                        borderColor: '#ff003c',
+                        borderColor: '#00ffff',
                         backgroundColor: gradient,
                         borderWidth: 2,
-                        pointBackgroundColor: '#000',
-                        pointBorderColor: '#ff003c',
+                        pointBackgroundColor: '#00ffff',
+                        pointBorderColor: '#141414',
+                        pointBorderWidth: 2,
                         fill: true,
                         tension: 0.3
                     }]
@@ -575,20 +693,36 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
-                    },
+                    plugins: { legend: { display: false } },
                     scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 10,
-                            grid: { color: '#333' },
-                            ticks: { color: '#666' }
-                        },
-                        x: {
-                            grid: { color: '#1a1a1a' },
-                            ticks: { color: '#666' }
-                        }
+                        y: { beginAtZero: true, max: 10, grid: { color: '#222' }, ticks: { display: false } },
+                        x: { grid: { display: false }, ticks: { color: '#444' } }
+                    }
+                }
+            });
+
+            // Render Influence (Bar)
+            const ctxBar = document.getElementById('influenceChart').getContext('2d');
+            if (influenceChartInstance) influenceChartInstance.destroy();
+
+            influenceChartInstance = new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: ['Бизнес', 'Тело', 'Дух', 'Люди'],
+                    datasets: [{
+                        data: [75, 40, 90, 60], // Mock for now
+                        backgroundColor: ['#00ff88', '#ff0055', '#33ccff', '#ffcc00'],
+                        borderRadius: 8,
+                        barThickness: 40
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, max: 100, grid: { color: '#222' }, ticks: { display: false } },
+                        x: { grid: { display: false }, ticks: { color: '#888' } }
                     }
                 }
             });
