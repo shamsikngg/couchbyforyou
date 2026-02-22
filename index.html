@@ -707,19 +707,45 @@
             const urlParams = new URLSearchParams(window.location.search);
             const energyRaw = urlParams.get('energy');
             const prodRaw = urlParams.get('prod');
+            const discRaw = urlParams.get('disc');
 
-            let dataPoints = [5, 6, 7, 5, 8, 9, 7]; // Defaults
-            if (energyRaw) dataPoints = energyRaw.split(',').map(Number);
-            else if (prodRaw) dataPoints = prodRaw.split(',').map(Number);
+            let energyPoints = [0, 0, 0, 0, 0, 0, 0];
+            let prodPoints = [0, 0, 0, 0, 0, 0, 0];
+            let discPoints = [0, 0, 0, 0, 0, 0, 0];
 
-            // Vitals
-            const avg = dataPoints.reduce((a, b) => a + b, 0) / dataPoints.length;
-            document.getElementById('vitals-avg').innerText = avg.toFixed(1);
+            if (energyRaw) energyPoints = energyRaw.split(',').map(Number);
+            if (prodRaw) prodPoints = prodRaw.split(',').map(Number);
+            if (discRaw) discPoints = discRaw.split(',').map(Number);
 
-            const activeDays = dataPoints.filter(v => v > 0).length;
+            // Vitals: Energy AVG (Calculation based on real inputs only)
+            const realEnergy = energyPoints.filter(v => v > 0);
+            const energyAvg = realEnergy.length > 0
+                ? realEnergy.reduce((a, b) => a + b, 0) / realEnergy.length
+                : 0;
+            document.getElementById('vitals-avg').innerText = energyAvg.toFixed(1);
+
+            // Vitals: Discipline % (Based on last 7 days from discPoints)
+            const activeDays = discPoints.filter(v => v === 1).length;
             document.getElementById('discipline-val').innerText = Math.round((activeDays / 7) * 100) + "%";
 
-            // Main Performance Chart
+            // Main Performance Chart (Priority: Energy, fallback to Productivity)
+            let chartData = [0, 0, 0, 0, 0, 0, 0];
+            const hasEnergy = energyPoints && energyPoints.some(v => v > 0);
+            const hasProd = prodPoints && prodPoints.some(v => v > 0);
+
+            if (hasEnergy) chartData = energyPoints;
+            else if (hasProd) chartData = prodPoints;
+
+            // Dynamic Labels (Match last 7 days ending TODAY)
+            const weekDays = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+            let dynamicLabels = [];
+            const now = new Date();
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(now.getDate() - i);
+                dynamicLabels.push(weekDays[d.getDay()]);
+            }
+
             const ctx = document.getElementById('energyChart').getContext('2d');
             if (mainChart) mainChart.destroy();
 
@@ -730,9 +756,9 @@
             mainChart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: ['M', 'T', 'W', 'T', 'F', 'S', 'S'],
+                    labels: dynamicLabels,
                     datasets: [{
-                        data: dataPoints,
+                        data: chartData,
                         borderColor: '#00f2ff',
                         backgroundColor: grad,
                         fill: true,
@@ -761,7 +787,7 @@
                 data: {
                     labels: ['EMPIRE', 'BODY', 'SOUL', 'TRIBE'],
                     datasets: [{
-                        data: [80, 65, 40, 70],
+                        data: [0, 0, 0, 0],
                         borderColor: '#ff004c',
                         backgroundColor: 'rgba(255, 0, 76, 0.1)',
                         borderWidth: 2,
