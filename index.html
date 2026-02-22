@@ -432,24 +432,24 @@
 
     <!-- OVERLAY LOADER -->
     <div id="loader">
-        <div class="loader-logo">TERMINAL.7</div>
+        <div class="loader-logo">ТЕРМИНАЛ.7</div>
         <div class="progress-bar">
             <div class="progress-fill"></div>
         </div>
         <div style="margin-top:20px; font-size:10px; color:var(--text-secondary); letter-spacing:4px;" id="loader-msg">
-            INITIALIZING_SYSTEM...
+            ИНИЦИАЛИЗАЦИЯ_СИСТЕМЫ...
         </div>
     </div>
 
     <div class="container" id="app">
         <header>
-            <div class="app-title">Identity Command Center</div>
-            <div class="user-id" id="user-display">USER_ID: 0x0000</div>
+            <div class="app-title">Центр Управления Личности</div>
+            <div class="user-id" id="user-display">ID Пользователя: 0x0000</div>
         </header>
 
         <div class="tabs">
-            <div class="tab active" id="tab-profile" onclick="switchTab('profile')">Dossier</div>
-            <div class="tab" id="tab-stats" onclick="switchTab('stats')">Vitals</div>
+            <div class="tab active" id="tab-profile" onclick="switchTab('profile')">Досье</div>
+            <div class="tab" id="tab-stats" onclick="switchTab('stats')">Показатели</div>
         </div>
 
         <!-- SECTION: PROFILE -->
@@ -457,64 +457,64 @@
             <div id="profile-view" style="display:none;">
                 <div class="glass-card">
                     <div class="data-item">
-                        <span class="data-label">Identity Status</span>
+                        <span class="data-label">Статус Личности</span>
                         <div style="font-family:var(--font-mono); font-size:12px; color:var(--accent-secondary);">
-                            SECURE // PERSISTENT
+                            ЗАЩИЩЕНО // СТАБИЛЬНО
                         </div>
                     </div>
 
                     <div class="data-item">
-                        <span class="data-label">Core Objective</span>
+                        <span class="data-label">Главная Цель</span>
                         <div class="data-value" id="view-goal">...</div>
                     </div>
 
                     <div class="data-item">
-                        <span class="data-label">Primal Shadow</span>
+                        <span class="data-label">Первичная Тень (Страх)</span>
                         <div class="data-value" id="view-fear">...</div>
                     </div>
 
                     <div class="data-item">
-                        <span class="data-label">Stakes</span>
+                        <span class="data-label">Цена Слова</span>
                         <div class="data-value" id="view-price">...</div>
                     </div>
 
-                    <button class="secondary-btn" onclick="editProfile()">Edit Identity Protocol</button>
+                    <button class="secondary-btn" onclick="editProfile()">Редактировать Протокол</button>
                 </div>
             </div>
 
             <div id="profile-edit" style="display:none;">
                 <div class="glass-card">
                     <div class="edit-step" id="step1" style="display:block;">
-                        <span class="data-label">Phase 01: Core Pain</span>
-                        <div style="font-size:12px; color:var(--text-secondary); margin-top:5px;">What is holding you
-                            back right now?</div>
-                        <textarea id="pain" placeholder="The weakness you can no longer ignore..."></textarea>
-                        <button class="primary-btn" onclick="nextStep(1)">Validate Phase</button>
+                        <span class="data-label">Фаза 01: Точка Боли</span>
+                        <div style="font-size:12px; color:var(--text-secondary); margin-top:5px;">Что сдерживает тебя
+                            прямо сейчас?</div>
+                        <textarea id="pain" placeholder="Слабость, которую нельзя игнорировать..."></textarea>
+                        <button class="primary-btn" onclick="nextStep(1)">Подтвердить Фазу</button>
                     </div>
 
                     <div class="edit-step" id="step2">
-                        <span class="data-label">Phase 02: Prime Shadow</span>
-                        <div style="font-size:12px; color:var(--text-secondary); margin-top:5px;">What happens if you
-                            fail? Be visceral.</div>
-                        <textarea id="fear" placeholder="The darkness that keeps you awake..."></textarea>
-                        <button class="primary-btn" onclick="nextStep(2)">Validate Phase</button>
+                        <span class="data-label">Фаза 02: Тень</span>
+                        <div style="font-size:12px; color:var(--text-secondary); margin-top:5px;">Что будет, если ты
+                            проиграешь? Будь честен.</div>
+                        <textarea id="fear" placeholder="Тьма, которая не дает тебе спать..."></textarea>
+                        <button class="primary-btn" onclick="nextStep(2)">Подтвердить Фазу</button>
                     </div>
 
                     <div class="edit-step" id="step3">
-                        <span class="data-label">Phase 03: The Vision</span>
-                        <div style="font-size:12px; color:var(--text-secondary); margin-top:5px;">What is the final form
-                            of your success?</div>
-                        <textarea id="goal" placeholder="The reality you are chosen to build..."></textarea>
-                        <button class="primary-btn" onclick="nextStep(3)">Validate Phase</button>
+                        <span class="data-label">Фаза 03: Видение</span>
+                        <div style="font-size:12px; color:var(--text-secondary); margin-top:5px;">В чем финальная форма
+                            твоего успеха?</div>
+                        <textarea id="goal" placeholder="Реальность, которую ты должен построить..."></textarea>
+                        <button class="primary-btn" onclick="nextStep(3)">Подтвердить Фазу</button>
                     </div>
 
                     <div class="edit-step" id="step4">
-                        <span class="data-label">Phase 04: The Sacrifice</span>
-                        <div style="font-size:12px; color:var(--text-secondary); margin-top:5px;">What are you willing
-                            to burn to get there?</div>
-                        <textarea id="price" placeholder="The price of your expansion..."></textarea>
+                        <span class="data-label">Фаза 04: Жертва</span>
+                        <div style="font-size:12px; color:var(--text-secondary); margin-top:5px;">Что ты готов сжечь,
+                            чтобы дойти?</div>
+                        <textarea id="price" placeholder="Цена твоего расширения..."></textarea>
                         <button class="primary-btn" onclick="saveData()"
-                            style="background:var(--accent-primary); color:#fff;">Initialize Protocol</button>
+                            style="background:var(--accent-primary); color:#fff;">Инициализировать Протокол</button>
                     </div>
                 </div>
             </div>
@@ -525,29 +525,29 @@
             <div class="stats-grid">
                 <div class="stat-mini-card">
                     <span class="stat-val" style="color:var(--accent-secondary);" id="vitals-avg">7.0</span>
-                    <span class="stat-lbl">Energy Avg</span>
+                    <span class="stat-lbl">Ср. Энергия</span>
                 </div>
                 <div class="stat-mini-card">
                     <span class="stat-val" style="color:var(--accent-primary);" id="discipline-val">85%</span>
-                    <span class="stat-lbl">Discipline</span>
+                    <span class="stat-lbl">Дисциплина</span>
                 </div>
             </div>
 
             <div class="glass-card">
-                <span class="data-label">Performance Dynamics</span>
+                <span class="data-label">Динамика Эффективности</span>
                 <div class="chart-container">
                     <canvas id="energyChart"></canvas>
                 </div>
             </div>
 
             <div class="glass-card">
-                <span class="data-label">Archetype Balance</span>
+                <span class="data-label">Баланс Архетипов</span>
                 <div class="chart-container">
                     <canvas id="influenceChart"></canvas>
                 </div>
             </div>
 
-            <button class="primary-btn" onclick="tg.close()">Destroy Session</button>
+            <button class="primary-btn" onclick="tg.close()">Завершить Сессию</button>
         </div>
 
         <footer>
@@ -563,7 +563,7 @@
 
         // --- LOADER ---
         window.onload = function () {
-            const steps = ["CONNECTED", "SCANNING_ID", "SYNCING_VITALS", "ACCESS_GRANTED"];
+            const steps = ["ПОДКЛЮЧЕНО", "СКАНИРОВАНИЕ_ID", "СИНХРОНИЗАЦИЯ", "ДОСТУП_РАЗРЕШЕН"];
             let i = 0;
             const interval = setInterval(() => {
                 document.getElementById('loader-msg').innerText = steps[i] + "...";
@@ -581,7 +581,7 @@
                             // Display User ID safely
                             const user = tg.initDataUnsafe.user;
                             if (user) {
-                                document.getElementById('user-display').innerText = `USER_ID: 0x${user.id.toString(16).toUpperCase()}`;
+                                document.getElementById('user-display').innerText = `ID Пользователя: 0x${user.id.toString(16).toUpperCase()}`;
                             }
 
                             const urlParams = new URLSearchParams(window.location.search);
@@ -785,7 +785,7 @@
             radarChart = new Chart(ctxR, {
                 type: 'radar',
                 data: {
-                    labels: ['EMPIRE', 'BODY', 'SOUL', 'TRIBE'],
+                    labels: ['ИМПЕРИЯ', 'ТЕЛО', 'ДУША', 'ПЛЕМЯ'],
                     datasets: [{
                         data: [0, 0, 0, 0],
                         borderColor: '#ff004c',
